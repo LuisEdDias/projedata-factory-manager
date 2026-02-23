@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: factory.manager
+
+  profiles:
+    active: dev
