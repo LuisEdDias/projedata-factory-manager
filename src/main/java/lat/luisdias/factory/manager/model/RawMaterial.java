@@ -2,6 +2,7 @@ package lat.luisdias.factory.manager.model;
 
 import jakarta.persistence.*;
 import lat.luisdias.factory.manager.exeption.exceptions.DomainInvariantViolationException;
+import lat.luisdias.factory.manager.model.vo.IdentificationCodeVO;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -14,8 +15,8 @@ public class RawMaterial {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, updatable = false, length = 50)
-    private String code;
+    @Embedded
+    private IdentificationCodeVO code;
 
     @Column(nullable = false)
     private String name;
@@ -31,12 +32,11 @@ public class RawMaterial {
     }
 
     public RawMaterial(String code, String name, BigDecimal initialStock, MeasurementUnit unit) {
-        String normalizedCode = normalizeAndValidateCode(code);
         validateName(name);
         validateStock(initialStock);
         validateUnit(unit);
 
-        this.code = normalizedCode;
+        this.code = new IdentificationCodeVO(code);
         this.name = name;
         this.stockQuantity = initialStock;
         this.unit = unit;
@@ -73,25 +73,6 @@ public class RawMaterial {
         this.stockQuantity = this.stockQuantity.subtract(quantity);
     }
 
-    private String normalizeAndValidateCode(String code) {
-        if (code == null) {
-            throw new DomainInvariantViolationException(
-                    "exception.domain.raw_material.code_invalid"
-            );
-        }
-
-        String normalizedCode = code.trim().toUpperCase();
-
-        if (normalizedCode.isBlank()) {
-            throw new DomainInvariantViolationException(
-                    "exception.domain.raw_material.code_invalid",
-                    code
-            );
-        }
-
-        return normalizedCode;
-    }
-
     private void validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new DomainInvariantViolationException(
@@ -123,7 +104,7 @@ public class RawMaterial {
     }
 
     public String getCode() {
-        return code;
+        return code.getValue();
     }
 
     public String getName() {
