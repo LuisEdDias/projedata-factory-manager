@@ -9,19 +9,19 @@ import lat.luisdias.factory.manager.model.MeasurementUnit;
 import java.math.BigDecimal;
 
 public record RawMaterialCreateRequest(
-        @NotBlank(message = "{validation.raw_material.code.not_blank}")
+        @NotBlank(message = "{validation.raw_material.code.required}")
         @Size(max = 50, message = "{validation.raw_material.code.size}")
         String code,
 
-        @NotBlank(message = "{validation.raw_material.name.not_blank}")
-        @Size(max = 150, message = "{validation.raw_material.name.size}")
+        @NotBlank(message = "{validation.raw_material.name.required}")
+        @Size(max = 255, message = "{validation.raw_material.name.size}")
         String name,
 
-        @NotNull(message = "{validation.raw_material.initial_stock.not_null}")
+        @NotNull(message = "{validation.raw_material.initial_stock.required}")
         @DecimalMin(value = "0.0", message = "{validation.raw_material.initial_stock.min}")
         BigDecimal initialStock,
 
-        @NotNull(message = "{validation.raw_material.unit.not_null}")
+        @NotNull(message = "{validation.raw_material.unit.required}")
         MeasurementUnit unit
 ) {
 }

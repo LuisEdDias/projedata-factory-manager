@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public record StockChangeRequest(
 
-        @NotNull(message = "{validation.raw_material.change_stock.not_null}")
+        @NotNull(message = "{validation.raw_material.change_stock.required}")
         @DecimalMin(value = "0.1", message = "{validation.raw_material.change_stock.min}")
         BigDecimal quantity
 ) {
