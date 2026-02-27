@@ -53,6 +53,16 @@ public class Product {
         this.price = newPrice;
     }
 
+    public void updateMaterialQuantity(String rawMaterialCode, BigDecimal newQuantity) {
+        ProductMaterial material = this.composition.stream()
+                .filter(m -> m.getRawMaterial().getCode().equals(rawMaterialCode))
+                .findFirst()
+                .orElseThrow(() -> new DomainInvariantViolationException(
+                        "exception.domain.product.product_material_not_found"
+                ));
+        material.updateQuantity(newQuantity);
+    }
+
     public void addMaterial(ProductMaterial material) {
         if (material == null) {
             throw new DomainInvariantViolationException(
@@ -71,22 +81,22 @@ public class Product {
         }
     }
 
-    public void removeMaterial(ProductMaterial material) {
-        if (material == null) {
+    public void removeMaterial(String rawMaterialCode) {
+        if (rawMaterialCode == null || rawMaterialCode.isBlank()) {
             throw new DomainInvariantViolationException(
                     "exception.domain.product.product_material_invalid"
             );
         }
 
-        boolean removed = this.composition.remove(material);
+        ProductMaterial material = this.composition.stream()
+                .filter(m -> m.getRawMaterial().getCode().equals(rawMaterialCode))
+                .findFirst()
+                .orElseThrow(() -> new DomainInvariantViolationException(
+                        "exception.domain.product.product_material_not_found",
+                        rawMaterialCode
+                ));
 
-        if (!removed) {
-            throw new DomainInvariantViolationException(
-                    "exception.domain.product.product_material_not_found",
-                    material.getRawMaterial().getCode()
-            );
-        }
-
+        this.composition.remove(material);
         material.setProduct(null);
     }
 
