@@ -3,4 +3,4 @@ spring:
     name: factory.manager
 
   profiles:
-    active: dev
+    active: docker

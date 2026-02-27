@@ -2,7 +2,7 @@
 application-*.yml
 !application.yml
 !application-*.example.yml
-
+!application-docker.yml
 ### Environment ###
 .env
 .env.*
