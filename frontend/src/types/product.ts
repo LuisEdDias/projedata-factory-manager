@@ -3,30 +3,30 @@ import type { Unit } from '@/types/raw-material'
 export interface ProductMaterialResponse {
   rawMaterialCode: string
   rawMaterialName: string
-  quantityRequired: Number
+  quantityRequired: number
   unit: Unit
 }
 
 export interface ProductResponse {
   code: string
   name: string
-  price: Number
+  price: number
   materials: ProductMaterialResponse[]
 }
 
 export interface ProductMaterialRequest {
   rawMaterialCode: string
-  quantityRequired: Number
+  quantityRequired: number
 }
 
 export interface ProductCreateRequest {
   code: string
   name: string
-  price: Number
+  price: number
   materials: ProductMaterialRequest[]
 }
 
 export interface ProductUpdateRequest {
   name?: string
-  price?: Number
+  price?: number
 }
