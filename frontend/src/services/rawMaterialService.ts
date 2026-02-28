@@ -3,8 +3,10 @@ import api from './api'
 const BASE = '/raw-materials'
 
 export default {
-  async list(page = 0, size = 20) {
-    const res = await api.get(BASE, { params: { page, size } })
+  async list(page = 0, size = 20, sort = 'name,asc') {
+    const res = await api.get('/raw-materials', {
+      params: { page, size, sort },
+    })
     return res.data
   },
 
