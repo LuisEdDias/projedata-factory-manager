@@ -24,7 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         LEFT JOIN FETCH c.rawMaterial
         WHERE p IN :products
    """)
-    void fetchCompositionsForProducts(@Param("products") List<Product> products);
+    List<Product> fetchCompositionsForProducts(@Param("products") List<Product> products);
 
     boolean existsByCode(IdentificationCodeVO code);
 }
