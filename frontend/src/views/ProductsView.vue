@@ -1,127 +1,131 @@
 <template>
-  <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="text-secondary">Catálogo de Produtos</h2>
-    </div>
+  <div>
+    <div class="container mt-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-secondary">Catálogo de Produtos</h2>
+      </div>
 
-    <div class="card shadow-sm mb-3">
-      <div class="card-body py-3">
-        <div class="row justify-content-between align-items-center">
-          <div class="d-flex col-9 gap-2 flex-wrap align-items-end">
-            <div class="col-sm-5 col-md-4">
-              <label class="form-label mb-1">Buscar por código</label>
-              <input
-                v-model="searchCode"
-                class="form-control text-uppercase"
-                placeholder="Ex: PRD-01"
-                @keyup.enter="searchByCode"
-              />
+      <div class="card shadow-sm mb-3">
+        <div class="card-body py-3">
+          <div class="row justify-content-between align-items-center">
+            <div class="d-flex col-9 gap-2 flex-wrap align-items-end">
+              <div class="col-sm-5 col-md-4">
+                <label class="form-label mb-1">Buscar por código</label>
+                <input
+                  v-model="searchCode"
+                  class="form-control text-uppercase"
+                  placeholder="Ex: PRD-01"
+                  @keyup.enter="searchByCode"
+                />
+              </div>
+
+              <div class="col-auto">
+                <button class="btn btn-outline-primary" @click="searchByCode" :disabled="loading">
+                  Buscar
+                </button>
+              </div>
+
+              <div class="col-auto">
+                <button class="btn btn-outline-secondary" @click="clearSearch" :disabled="loading">
+                  Limpar
+                </button>
+              </div>
             </div>
-
-            <div class="col-auto">
-              <button class="btn btn-outline-primary" @click="searchByCode" :disabled="loading">
-                Buscar
+            <div class="col-3 text-end">
+              <button class="btn btn-primary fw-bold" @click="openCreateModal">
+                + Novo Produto
               </button>
             </div>
-
-            <div class="col-auto">
-              <button class="btn btn-outline-secondary" @click="clearSearch" :disabled="loading">
-                Limpar
-              </button>
-            </div>
-          </div>
-          <div class="col-3 text-end">
-            <button class="btn btn-primary fw-bold" @click="openCreateModal">+ Novo Produto</button>
           </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="loading" class="text-center my-5">
-      <div class="spinner-border text-primary" role="status"></div>
-    </div>
+      <div v-if="loading" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
 
-    <div v-else>
-      <div v-if="success" class="alert alert-success">{{ success }}</div>
-      <div v-if="error" class="alert alert-danger">{{ error }}</div>
+      <div v-else>
+        <div v-if="success" class="alert alert-success">{{ success }}</div>
+        <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
-      <div class="card shadow-sm">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover table-striped mb-0">
-              <thead class="table-dark">
-                <tr>
-                  <th>Código</th>
-                  <th>Nome do Produto</th>
-                  <th class="text-end">Preço de Venda</th>
-                  <th class="text-center">Qtd. Insumos na Receita</th>
-                  <th class="text-center">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="products.length === 0">
-                  <td colspan="5" class="text-center text-muted py-4">
-                    Nenhum produto encontrado.
-                  </td>
-                </tr>
-                <tr v-for="product in products" :key="product.code">
-                  <td class="align-middle fw-bold">{{ product.code }}</td>
-                  <td class="align-middle">{{ product.name }}</td>
-                  <td class="align-middle text-end text-success fw-bold">
-                    $
-                    {{
-                      Number(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-                    }}
-                  </td>
-                  <td class="align-middle text-center">
-                    <span class="badge bg-info text-dark rounded-pill">
-                      {{ product.materials.length }} itens
-                    </span>
-                  </td>
-                  <td class="align-middle text-center">
-                    <div class="d-flex gap-2 flex-wrap justify-content-center">
-                      <RouterLink
-                        class="btn btn-sm btn-outline-primary"
-                        :to="`/products/${product.code}`"
-                        >Detalhes</RouterLink
-                      >
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-striped mb-0">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Código</th>
+                    <th>Nome do Produto</th>
+                    <th class="text-end">Preço de Venda</th>
+                    <th class="text-center">Qtd. Insumos na Receita</th>
+                    <th class="text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="products.length === 0">
+                    <td colspan="5" class="text-center text-muted py-4">
+                      Nenhum produto encontrado.
+                    </td>
+                  </tr>
+                  <tr v-for="product in products" :key="product.code">
+                    <td class="align-middle fw-bold">{{ product.code }}</td>
+                    <td class="align-middle">{{ product.name }}</td>
+                    <td class="align-middle text-end text-success fw-bold">
+                      $
+                      {{
+                        Number(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                      }}
+                    </td>
+                    <td class="align-middle text-center">
+                      <span class="badge bg-info text-dark rounded-pill">
+                        {{ product.materials.length }} itens
+                      </span>
+                    </td>
+                    <td class="align-middle text-center">
+                      <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        <RouterLink
+                          class="btn btn-sm btn-outline-primary"
+                          :to="`/products/${product.code}`"
+                          >Detalhes</RouterLink
+                        >
 
-                      <button
-                        class="btn btn-sm btn-outline-danger"
-                        @click="deleteProduct(product.code, product.name)"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div
-            v-if="!isSearching && products.length !== 0"
-            class="d-flex justify-content-between align-items-center p-3 border-top"
-          >
-            <div class="text-muted small">
-              Página {{ currentPage + 1 }} de {{ totalPages }} ({{ totalElements }} registros)
+                        <button
+                          class="btn btn-sm btn-outline-danger"
+                          @click="deleteProduct(product.code, product.name)"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+            <div
+              v-if="!isSearching && products.length !== 0"
+              class="d-flex justify-content-between align-items-center p-3 border-top"
+            >
+              <div class="text-muted small">
+                Página {{ currentPage + 1 }} de {{ totalPages }} ({{ totalElements }} registros)
+              </div>
 
-            <div class="btn-group btn-group-sm">
-              <button
-                class="btn btn-outline-dark"
-                :disabled="currentPage === 0"
-                @click="previousPage"
-              >
-                Anterior
-              </button>
+              <div class="btn-group btn-group-sm">
+                <button
+                  class="btn btn-outline-dark"
+                  :disabled="currentPage === 0"
+                  @click="previousPage"
+                >
+                  Anterior
+                </button>
 
-              <button
-                class="btn btn-outline-dark"
-                :disabled="currentPage >= totalPages - 1"
-                @click="nextPage"
-              >
-                Próxima
-              </button>
+                <button
+                  class="btn btn-outline-dark"
+                  :disabled="currentPage >= totalPages - 1"
+                  @click="nextPage"
+                >
+                  Próxima
+                </button>
+              </div>
             </div>
           </div>
         </div>
