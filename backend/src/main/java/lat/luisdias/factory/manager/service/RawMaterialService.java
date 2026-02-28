@@ -45,7 +45,8 @@ public class RawMaterialService {
                     normalizedCode.getValue(),
                     materialCreateRequest.name(),
                     materialCreateRequest.initialStock(),
-                    materialCreateRequest.unit()
+                    materialCreateRequest.unit(),
+                    materialCreateRequest.unitCost()
             );
 
             return new RawMaterialResponse(rawMaterialRepository.save(rawMaterial));
@@ -71,9 +72,10 @@ public class RawMaterialService {
                 .map(RawMaterialResponse::new);
     }
 
-    public RawMaterialResponse updateName(String code, RawMaterialUpdateRequest materialUpdateRequest) {
+    public RawMaterialResponse update(String code, RawMaterialUpdateRequest materialUpdateRequest) {
         RawMaterial rawMaterial = findOrThrow(code);
         rawMaterial.updateName(materialUpdateRequest.name());
+        rawMaterial.updateUnitCost(materialUpdateRequest.unitCost());
         return new RawMaterialResponse(rawMaterial);
     }
 

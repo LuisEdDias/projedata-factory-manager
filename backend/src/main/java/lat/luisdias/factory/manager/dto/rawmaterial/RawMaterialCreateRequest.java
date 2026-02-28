@@ -19,6 +19,10 @@ public record RawMaterialCreateRequest(
         BigDecimal initialStock,
 
         @NotNull(message = "{validation.raw_material.unit.required}")
-        MeasurementUnit unit
+        MeasurementUnit unit,
+
+        @NotNull(message = "{validation.raw_material.unit_cost.required}")
+        @DecimalMin(value = "0.0", message = "{validation.raw_material.unit_cost.min}")
+        BigDecimal unitCost
 ) {
 }

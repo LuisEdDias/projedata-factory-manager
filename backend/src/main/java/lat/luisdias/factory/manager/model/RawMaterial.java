@@ -28,23 +28,33 @@ public class RawMaterial {
     @Column(nullable = false, length = 10)
     private MeasurementUnit unit;
 
+    @Column(nullable = false, precision = 14, scale = 4)
+    private BigDecimal unitCost;
+
     protected RawMaterial() {
     }
 
-    public RawMaterial(String code, String name, BigDecimal initialStock, MeasurementUnit unit) {
+    public RawMaterial(String code, String name, BigDecimal initialStock, MeasurementUnit unit, BigDecimal unitCost) {
         validateName(name);
         validateStock(initialStock);
         validateUnit(unit);
+        validateUnitCost(unitCost);
 
         this.code = new IdentificationCodeVO(code);
         this.name = name;
         this.stockQuantity = initialStock;
         this.unit = unit;
+        this.unitCost = unitCost;
     }
 
     public void updateName(String newName) {
         validateName(newName);
         this.name = newName;
+    }
+
+    public void updateUnitCost(BigDecimal newCost) {
+        validateUnitCost(newCost);
+        this.unitCost = newCost;
     }
 
     public void addStock(BigDecimal quantity) {
@@ -99,6 +109,15 @@ public class RawMaterial {
         }
     }
 
+    private void validateUnitCost(BigDecimal cost) {
+        if (cost == null || cost.compareTo(BigDecimal.ZERO) < 0) {
+            throw new DomainInvariantViolationException(
+                    "exception.domain.raw_material.unit_cost_invalid",
+                    cost
+            );
+        }
+    }
+
     public Long getId() {
         return id;
     }
@@ -117,6 +136,10 @@ public class RawMaterial {
 
     public MeasurementUnit getUnit() {
         return unit;
+    }
+
+    public BigDecimal getUnitCost() {
+        return unitCost;
     }
 
     @Override

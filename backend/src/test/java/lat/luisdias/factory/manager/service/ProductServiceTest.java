@@ -106,8 +106,10 @@ class ProductServiceTest {
 
         RawMaterial rm1 = mock(RawMaterial.class);
         when(rm1.getCode()).thenReturn("RM-1");
+        when(rm1.getUnitCost()).thenReturn(BigDecimal.ONE);
         RawMaterial rm2 = mock(RawMaterial.class);
         when(rm2.getCode()).thenReturn("RM-2");
+        when(rm2.getUnitCost()).thenReturn(BigDecimal.TEN);
 
         when(rawMaterialRepository.findByCode(any()))
                 .thenAnswer(invocation -> {
@@ -242,6 +244,7 @@ class ProductServiceTest {
 
         RawMaterial rawMaterial = mock(RawMaterial.class);
         when(rawMaterial.getCode()).thenReturn("RM-1");
+        when(rawMaterial.getUnitCost()).thenReturn(BigDecimal.TEN);
         when(rawMaterialRepository.findByCode(argThat(idCode -> idCode.getValue().equals("RM-1"))))
                 .thenReturn(Optional.of(rawMaterial));
 
@@ -263,6 +266,7 @@ class ProductServiceTest {
 
         RawMaterial rawMaterial = mock(RawMaterial.class);
         when(rawMaterial.getCode()).thenReturn("RM-1");
+        when(rawMaterial.getUnitCost()).thenReturn(BigDecimal.TEN);
 
         ProductMaterial productMaterial = new ProductMaterial(rawMaterial, bigDec("1.0000"));
         product.addMaterial(productMaterial);

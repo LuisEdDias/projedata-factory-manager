@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,7 +33,24 @@ public class ProductionOptimizationService {
     }
 
     @Transactional(readOnly = true)
-    public ProductionPlanResponse calculateOptimalProductionPlan() {
+    public ProductionPlanResponse getPlanByProfit() {
+        List<Product> products = productRepository.findAllFetchCompositionsSortedByPriceDesc();
+
+        List<Product> sortedProducts = products.stream()
+                .sorted(Comparator.comparing(Product::getUnitProfit).reversed())
+                .toList();
+
+        return calculateOptimalProductionPlan(sortedProducts);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductionPlanResponse getPlanByRevenue() {
+        List<Product> sortedProducts = productRepository.findAllFetchCompositionsSortedByPriceDesc();
+
+        return calculateOptimalProductionPlan(sortedProducts);
+    }
+
+    private ProductionPlanResponse calculateOptimalProductionPlan(List<Product> sortedProducts) {
         List<RawMaterial> allMaterials = rawMaterialRepository.findAll();
 
         Map<String, BigDecimal> virtualStock = allMaterials.stream()
@@ -41,10 +59,9 @@ public class ProductionOptimizationService {
                         RawMaterial::getStockQuantity
                 ));
 
-        List<Product> sortedProducts = productRepository.findAllFetchCompositionsSortedByPriceDesc();
-
         List<ProductionPlanItem> planItems = new ArrayList<>();
         BigDecimal totalRevenue = BigDecimal.ZERO;
+        BigDecimal totalProfit = BigDecimal.ZERO;
 
         for (Product product : sortedProducts) {
             if (product.getComposition().isEmpty()) continue;
@@ -54,19 +71,24 @@ public class ProductionOptimizationService {
             if (maxUnitsToProduce > 0) {
                 deductFromVirtualStock(product, maxUnitsToProduce, virtualStock);
 
-                BigDecimal itemRevenue = product.getPrice().multiply(BigDecimal.valueOf(maxUnitsToProduce));
+                BigDecimal units = BigDecimal.valueOf(maxUnitsToProduce);
+                BigDecimal itemRevenue = product.getPrice().multiply(units);
+                BigDecimal itemProfit = product.getUnitProfit().multiply(units);
+
                 totalRevenue = totalRevenue.add(itemRevenue);
+                totalProfit = totalProfit.add(itemProfit);
 
                 planItems.add(new ProductionPlanItem(
                         product.getCode(),
                         product.getName(),
                         maxUnitsToProduce,
-                        itemRevenue
+                        itemRevenue,
+                        itemProfit
                 ));
             }
         }
 
-        return new ProductionPlanResponse(planItems, totalRevenue, virtualStock);
+        return new ProductionPlanResponse(planItems, totalRevenue, totalProfit, virtualStock);
     }
 
     private long calculateMaxUnitsPossible(Product product, Map<String, BigDecimal> currentStock) {

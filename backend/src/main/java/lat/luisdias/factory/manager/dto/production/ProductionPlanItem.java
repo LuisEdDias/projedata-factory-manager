@@ -6,6 +6,7 @@ public record ProductionPlanItem(
         String productCode,
         String productName,
         Long quantityToProduce,
-        BigDecimal totalValue
+        BigDecimal totalValue,
+        BigDecimal itemProfit
 ) {
 }

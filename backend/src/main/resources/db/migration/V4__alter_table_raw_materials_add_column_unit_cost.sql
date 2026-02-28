@@ -1,0 +1,1 @@
+ALTER TABLE raw_materials ADD COLUMN unit_cost NUMERIC(14,4) NOT NULL DEFAULT 0;

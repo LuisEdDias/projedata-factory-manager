@@ -9,14 +9,16 @@ public record RawMaterialResponse(
         String code,
         String name,
         BigDecimal stockQuantity,
-        MeasurementUnit unit
+        MeasurementUnit unit,
+        BigDecimal unitCost
 ) {
     public RawMaterialResponse(RawMaterial rawMaterial) {
         this(
                 rawMaterial.getCode(),
                 rawMaterial.getName(),
                 rawMaterial.getStockQuantity(),
-                rawMaterial.getUnit()
+                rawMaterial.getUnit(),
+                rawMaterial.getUnitCost()
         );
     }
 }

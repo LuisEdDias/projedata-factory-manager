@@ -24,9 +24,9 @@ public class ProductionOptimizationController {
         this.optimizationService = optimizationService;
     }
 
-    @GetMapping
+    @GetMapping("/revenue")
     @Operation(
-            summary = "Calculate the optimal production plan",
+            summary = "Calculate the optimal production plan (Max Revenue)",
             description = "Analyzes current raw material stock and product recipes to maximize total revenue using a greedy algorithm. This is a read-only simulation and does not deduct actual stock."
     )
     @ApiResponses(value = {
@@ -34,7 +34,22 @@ public class ProductionOptimizationController {
             @ApiResponse(responseCode = "500", description = "Unexpected internal error during calculation", content = @Content(
                     mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ProductionPlanResponse calculatePlan() {
-        return optimizationService.calculateOptimalProductionPlan();
+    public ProductionPlanResponse calculatePlanByRevenue() {
+        return optimizationService.getPlanByRevenue();
+    }
+
+
+    @GetMapping("/profit")
+    @Operation(
+            summary = "Calculate the optimal production plan (Max Profit)",
+            description = "Analyzes current raw material stock, product recipes, and raw material costs to maximize net profit using a greedy algorithm. This is a read-only simulation and does not deduct actual stock."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "500", description = "Unexpected internal error during calculation", content = @Content(
+                    mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public ProductionPlanResponse calculatePlanByProfit() {
+        return optimizationService.getPlanByProfit();
     }
 }

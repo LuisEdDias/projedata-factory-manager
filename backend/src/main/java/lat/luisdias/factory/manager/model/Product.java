@@ -5,6 +5,7 @@ import lat.luisdias.factory.manager.exeption.exceptions.DomainInvariantViolation
 import lat.luisdias.factory.manager.model.vo.IdentificationCodeVO;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 @Entity
@@ -98,6 +99,24 @@ public class Product {
 
         this.composition.remove(material);
         material.setProduct(null);
+    }
+
+    public BigDecimal getTotalMaterialCost() {
+        if (this.composition == null || this.composition.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return this.composition.stream()
+                .map(item -> item.getRawMaterial()
+                        .getUnitCost()
+                        .multiply(item.getQuantityRequired()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(4, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getUnitProfit() {
+        return this.price.subtract(getTotalMaterialCost())
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     private void validateName(String name) {

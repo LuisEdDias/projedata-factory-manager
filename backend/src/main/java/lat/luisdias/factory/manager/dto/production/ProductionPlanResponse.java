@@ -7,6 +7,7 @@ import java.util.Map;
 public record ProductionPlanResponse(
         List<ProductionPlanItem> plan,
         BigDecimal estimatedTotalRevenue,
+        BigDecimal estimatedTotalProfit,
         Map<String, BigDecimal> remainingStock
 ) {
 }

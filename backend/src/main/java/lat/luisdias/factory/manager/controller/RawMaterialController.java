@@ -90,7 +90,7 @@ public class RawMaterialController {
             @PathVariable @NotBlank String code,
             @RequestBody @Valid RawMaterialUpdateRequest req
     ) {
-        return service.updateName(code, req);
+        return service.update(code, req);
     }
 
     @PostMapping("/{code}/stock/add")

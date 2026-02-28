@@ -10,6 +10,8 @@ public record ProductResponse(
         String code,
         String name,
         BigDecimal price,
+        BigDecimal totalMaterialCost,
+        BigDecimal unitProfit,
         List<ProductMaterialResponse> materials
 ) {
     public ProductResponse(Product product) {
@@ -17,6 +19,8 @@ public record ProductResponse(
                 product.getCode(),
                 product.getName(),
                 product.getPrice(),
+                product.getTotalMaterialCost(),
+                product.getUnitProfit(),
                 product.getComposition().stream()
                         .map(ProductMaterialResponse::new)
                         .toList()

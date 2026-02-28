@@ -42,7 +42,7 @@ class RawMaterialServiceTest {
     private RawMaterialService rawMaterialService;
 
     private RawMaterial createValidRawMaterial() {
-        return new RawMaterial("WOOD-01", "Wood", BigDecimal.valueOf(100), MeasurementUnit.KG);
+        return new RawMaterial("WOOD-01", "Wood", BigDecimal.valueOf(100), MeasurementUnit.KG, BigDecimal.valueOf(200));
     }
 
     @Test
@@ -52,7 +52,8 @@ class RawMaterialServiceTest {
                 "WOOD-01",
                 "Wood",
                 BigDecimal.valueOf(100),
-                MeasurementUnit.KG
+                MeasurementUnit.KG,
+                BigDecimal.valueOf(200)
         );
         RawMaterial rawMaterial = createValidRawMaterial();
 
@@ -75,7 +76,8 @@ class RawMaterialServiceTest {
                 "WOOD-01",
                 "Wood",
                 BigDecimal.TEN,
-                MeasurementUnit.UN
+                MeasurementUnit.UN,
+                BigDecimal.valueOf(200)
         );
         when(rawMaterialRepository.existsByCode(any(IdentificationCodeVO.class))).thenReturn(true);
 
@@ -91,7 +93,8 @@ class RawMaterialServiceTest {
                 "WOOD-01",
                 "Wood",
                 BigDecimal.TEN,
-                MeasurementUnit.UN
+                MeasurementUnit.UN,
+                BigDecimal.valueOf(200)
         );
 
         when(rawMaterialRepository.existsByCode(any(IdentificationCodeVO.class))).thenReturn(false);
@@ -164,17 +167,22 @@ class RawMaterialServiceTest {
     }
 
     @Test
-    void shouldUpdateNameSuccessfully() {
+    void shouldUpdateSuccessfully() {
         // Arrange
         RawMaterial rawMaterial = createValidRawMaterial();
-        RawMaterialUpdateRequest request = new RawMaterialUpdateRequest("Solid Wood");
-        when(rawMaterialRepository.findByCode(any(IdentificationCodeVO.class))).thenReturn(Optional.of(rawMaterial));
+        RawMaterialUpdateRequest request =
+                new RawMaterialUpdateRequest("Solid Wood", BigDecimal.valueOf(100));
+
+        when(rawMaterialRepository.findByCode(any(IdentificationCodeVO.class)))
+                .thenReturn(Optional.of(rawMaterial));
 
         // Act
-        RawMaterialResponse response = rawMaterialService.updateName("WOOD-01", request);
+        RawMaterialResponse response =
+                rawMaterialService.update("WOOD-01", request);
 
         // Assert
         assertEquals("Solid Wood", response.name());
+        assertEquals(BigDecimal.valueOf(100), response.unitCost());
     }
 
     @Test
