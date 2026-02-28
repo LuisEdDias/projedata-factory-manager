@@ -236,7 +236,6 @@ import productService from '@/services/productService'
 import rawMaterialService from '@/services/rawMaterialService'
 import type { ProductResponse, ProductMaterialResponse } from '@/types/product'
 import type { RawMaterial } from '@/types/raw-material'
-import { n } from 'vue-router/dist/options-D40y7AuF.mjs'
 
 const route = useRoute()
 const code = String(route.params.code || '').toUpperCase()
