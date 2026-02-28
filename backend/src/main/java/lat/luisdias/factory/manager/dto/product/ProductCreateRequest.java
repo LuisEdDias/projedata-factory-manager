@@ -9,7 +9,7 @@ import java.util.List;
 
 public record ProductCreateRequest(
         @NotBlank(message = "{validation.product.code.required}")
-        @Size(max = 50, message = "{validation.product.code.size}")
+        @Pattern(regexp = "^[A-Za-z0-9_-]{3,50}$", message = "{validation.product.code.invalid_format}")
         String code,
 
         @NotBlank(message = "{validation.product.name.required}")

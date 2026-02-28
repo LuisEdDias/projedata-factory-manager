@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 
 public record RawMaterialUpdateRequest(
         @NotBlank(message = "{validation.raw_material.name.required}")
-        @Size(max = 150, message = "{validation.raw_material.name.size}")
+        @Size(max = 255, message = "{validation.raw_material.name.size}")
         String name
 ) {
 }
