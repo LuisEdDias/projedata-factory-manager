@@ -11,20 +11,28 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
-        SELECT p FROM Product p
-        LEFT JOIN FETCH p.composition c
-        LEFT JOIN FETCH c.rawMaterial
-        WHERE p.code = :code
-    """)
+                SELECT p FROM Product p
+                LEFT JOIN FETCH p.composition c
+                LEFT JOIN FETCH c.rawMaterial
+                WHERE p.code = :code
+            """)
     Optional<Product> findByCodeWithComposition(@Param("code") IdentificationCodeVO code);
 
     @Query("""
-        SELECT DISTINCT p FROM Product p
-        LEFT JOIN FETCH p.composition c
-        LEFT JOIN FETCH c.rawMaterial
-        WHERE p IN :products
-   """)
+                 SELECT DISTINCT p FROM Product p
+                 LEFT JOIN FETCH p.composition c
+                 LEFT JOIN FETCH c.rawMaterial
+                 WHERE p IN :products
+            """)
     List<Product> fetchCompositionsForProducts(@Param("products") List<Product> products);
+
+    @Query("""
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.composition c
+                LEFT JOIN FETCH c.rawMaterial
+                ORDER BY p.price DESC
+            """)
+    List<Product> findAllFetchCompositionsSortedByPriceDesc();
 
     boolean existsByCode(IdentificationCodeVO code);
 }
