@@ -21,9 +21,9 @@
               <router-link
                 class="nav-link px-3"
                 active-class="active fw-bold text-white"
-                to="/raw-materials"
+                to="/production-plan"
               >
-                Matérias-Primas
+                Inteligência de Produção
               </router-link>
             </li>
             <li class="nav-item">
@@ -33,6 +33,15 @@
                 to="/products"
               >
                 Produtos
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                class="nav-link px-3"
+                active-class="active fw-bold text-white"
+                to="/raw-materials"
+              >
+                Matérias-Primas
               </router-link>
             </li>
           </ul>
