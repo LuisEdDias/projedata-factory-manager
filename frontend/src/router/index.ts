@@ -8,6 +8,16 @@ const router = createRouter({
       name: 'rawMaterials',
       component: () => import('../views/RawMaterialsView.vue'),
     },
+    {
+      path: '/products',
+      name: 'products',
+      component: () => import('../views/ProductsView.vue'),
+    },
+    {
+      path: '/products/:code',
+      name: 'product-details',
+      component: () => import('@/views/ProductDetailsView.vue'),
+    },
   ],
 })
 

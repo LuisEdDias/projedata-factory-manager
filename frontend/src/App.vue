@@ -26,6 +26,15 @@
                 Matérias-Primas
               </router-link>
             </li>
+            <li class="nav-item">
+              <router-link
+                class="nav-link px-3"
+                active-class="active fw-bold text-white"
+                to="/products"
+              >
+                Produtos
+              </router-link>
+            </li>
           </ul>
         </div>
       </div>
