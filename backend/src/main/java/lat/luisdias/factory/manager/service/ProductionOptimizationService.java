@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,12 +33,6 @@ public class ProductionOptimizationService {
 
     @Transactional(readOnly = true)
     public ProductionPlanResponse calculateOptimalProductionPlan() {
-        List<Product> allProducts = productRepository.findAll();
-
-        if (!allProducts.isEmpty()) {
-            productRepository.fetchCompositionsForProducts(allProducts);
-        }
-
         List<RawMaterial> allMaterials = rawMaterialRepository.findAll();
 
         Map<String, BigDecimal> virtualStock = allMaterials.stream()
@@ -48,9 +41,7 @@ public class ProductionOptimizationService {
                         RawMaterial::getStockQuantity
                 ));
 
-        List<Product> sortedProducts = allProducts.stream()
-                .sorted(Comparator.comparing(Product::getPrice).reversed())
-                .toList();
+        List<Product> sortedProducts = productRepository.findAllFetchCompositionsSortedByPriceDesc();
 
         List<ProductionPlanItem> planItems = new ArrayList<>();
         BigDecimal totalRevenue = BigDecimal.ZERO;
