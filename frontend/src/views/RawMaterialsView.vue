@@ -7,7 +7,7 @@
     <div class="card shadow-sm mb-3">
       <div class="card-body py-3">
         <div class="row justify-content-between align-items-center">
-          <div class="d-flex gap-2 flex-wrap col-9 align-items-end">
+          <div class="d-flex col-9 gap-2 flex-wrap align-items-end">
             <div class="col-sm-5 col-md-4">
               <label class="form-label mb-1">Buscar por código</label>
               <input
@@ -113,7 +113,7 @@
             </table>
           </div>
           <div
-            v-if="rawMaterials.length != 0"
+            v-if="!isSearching && rawMaterials.length !== 0"
             class="d-flex justify-content-between align-items-center p-3 border-top"
           >
             <div class="text-muted small">
@@ -207,11 +207,9 @@
                       class="form-select"
                       :class="{ 'is-invalid': hasError('unit') }"
                     >
-                      <option value="UN">Unidade (UN)</option>
-                      <option value="KG">Quilograma (KG)</option>
-                      <option value="L">Litro (L)</option>
-                      <option value="M">Metro (M)</option>
-                      <option value="HR">Hora trabalhada (HR)</option>
+                      <option v-for="u in units" :key="u" :value="u">
+                        {{ unitLabels[u] }}
+                      </option>
                     </select>
                     <div class="invalid-feedback">{{ getError('unit') }}</div>
                   </div>
@@ -336,9 +334,11 @@
 import { ref, onMounted } from 'vue'
 import { Modal } from 'bootstrap'
 import rawMaterialService from '../services/rawMaterialService'
+import { Unit, type RawMaterial } from '@/types/raw-material'
 
 // --- Page State ---
-const rawMaterials = ref<any[]>([])
+const rawMaterials = ref<RawMaterial[]>([])
+const units = Object.values(Unit)
 const loading = ref(true)
 const success = ref('')
 const error = ref('')
@@ -351,6 +351,7 @@ const formGeneralError = ref('')
 
 const fetchMaterials = async () => {
   loading.value = true
+  isSearching.value = false
   error.value = ''
 
   try {
@@ -400,17 +401,22 @@ const deleteMaterial = async (code: string) => {
     await fetchMaterials()
     setPageSuccess(`Material ${code} excluído com sucesso.`)
   } catch (err: any) {
-    setPageError(err.detail || 'Não é possível excluir este mater.')
+    setPageError(err.detail || 'Não é possível excluir este material.')
   }
 }
 
-// --- RAW MATERIAL CREATE MODAL ---
+// --- Raw Material Create Modal ---
 const createModalElement = ref<HTMLElement | null>(null)
 let bsCreateModal: Modal | null = null
-const createForm = ref({ code: '', name: '', initialStock: 0, unit: 'UN' })
+const createForm = ref<CreateRawMaterialForm>({
+  code: '',
+  name: '',
+  initialStock: 0,
+  unit: Unit.UN,
+})
 
 const openModal = () => {
-  createForm.value = { code: '', name: '', initialStock: 0, unit: 'UN' }
+  createForm.value = { code: '', name: '', initialStock: 0, unit: Unit.UN }
   formErrors.value = []
   formGeneralError.value = ''
   bsCreateModal?.show()
@@ -431,7 +437,7 @@ const saveMaterial = async () => {
     if (rawMaterials.value.length < pageSize.value) {
       rawMaterials.value.push(created)
     }
-    createForm.value = { code: '', name: '', initialStock: 0, unit: 'UN' }
+    createForm.value = { code: '', name: '', initialStock: 0, unit: Unit.UN }
     setFormSuccess('Matéria-prima cadastrada com sucesso!')
   } catch (err: any) {
     if (err.invalid_params) {
@@ -446,12 +452,12 @@ const saveMaterial = async () => {
   }
 }
 
-// --- RAW MATERIAL EDIT MODAL ---
+// --- Raw Material Edit Modal ---
 const editModalElement = ref<HTMLElement | null>(null)
 let bsEditModal: Modal | null = null
-const editForm = ref({ code: '', name: '' })
+const editForm = ref<EditRawMaterialForm>({ code: '', name: '' })
 
-const openEditModal = (material: any) => {
+const openEditModal = (material: RawMaterial) => {
   editForm.value = { code: material.code, name: material.name }
   formErrors.value = []
   formGeneralError.value = ''
@@ -471,7 +477,7 @@ const updateMaterial = async () => {
     await rawMaterialService.updateName(editForm.value.code, { name: editForm.value.name })
 
     const index = rawMaterials.value.findIndex((m) => m.code === editForm.value.code)
-    if (index !== -1) {
+    if (index !== -1 && rawMaterials.value[index]) {
       rawMaterials.value[index].name = editForm.value.name
     }
 
@@ -490,7 +496,7 @@ const updateMaterial = async () => {
   }
 }
 
-// --- STOCK MODAL ---
+// --- Stock Change Modal ---
 type StockAction = 'ADD' | 'CONSUME'
 
 const stockModalElement = ref<HTMLElement | null>(null)
@@ -500,13 +506,13 @@ const stockAction = ref<StockAction>('ADD')
 const stockSaving = ref(false)
 const stockGeneralError = ref('')
 
-const stockForm = ref({
+const stockForm = ref<StockForm>({
   code: '',
   name: '',
   quantity: 0,
 })
 
-const openStockModal = (material: any, action: StockAction) => {
+const openStockModal = (material: RawMaterial, action: StockAction) => {
   stockAction.value = action
   stockGeneralError.value = ''
   stockForm.value = { code: material.code, name: material.name, quantity: 0 }
@@ -530,10 +536,10 @@ const confirmStockAction = async () => {
 
   try {
     if (stockAction.value === 'ADD') {
-      await rawMaterialService.addStock(stockForm.value.code, qty)
+      await rawMaterialService.addStock(stockForm.value.code, { quantity: qty })
       setPageSuccess(`Estoque adicionado em ${stockForm.value.code}.`)
     } else {
-      await rawMaterialService.consumeStock(stockForm.value.code, qty)
+      await rawMaterialService.consumeStock(stockForm.value.code, { quantity: qty })
       setPageSuccess(`Estoque consumido em ${stockForm.value.code}.`)
     }
 
@@ -549,9 +555,11 @@ const confirmStockAction = async () => {
 
 // --- Search by Code ---
 const searchCode = ref('')
+const isSearching = ref(false)
 
 const searchByCode = async () => {
   const code = searchCode.value.trim().toUpperCase()
+  isSearching.value = true
   if (!code) {
     setPageError('Informe um código válido.')
     return
@@ -563,11 +571,11 @@ const searchByCode = async () => {
   try {
     const material = await rawMaterialService.get(code)
     rawMaterials.value = material ? [material] : []
-    totalPages.value = 1
     totalElements.value = rawMaterials.value.length
     searchCode.value = ''
   } catch (err: any) {
     setPageError(err.detail || `Nenhum material encontrado para o código ${code}.`)
+    isSearching.value = false
   } finally {
     loading.value = false
   }
@@ -575,6 +583,7 @@ const searchByCode = async () => {
 
 const clearSearch = async () => {
   searchCode.value = ''
+  isSearching.value = false
   currentPage.value = 0
   await fetchMaterials()
 }
@@ -606,6 +615,32 @@ const setFormGeneralError = (message: string) => {
 const setFormSuccess = (message: string) => {
   formSuccess.value = message
   setTimeout(() => (formSuccess.value = ''), 3000)
+}
+
+interface CreateRawMaterialForm {
+  code: string
+  name: string
+  initialStock: number
+  unit: Unit
+}
+
+interface EditRawMaterialForm {
+  code: string
+  name: string
+}
+
+interface StockForm {
+  code: string
+  name: string
+  quantity: number
+}
+
+const unitLabels: Record<Unit, string> = {
+  UN: 'Unidade (UN)',
+  KG: 'Quilograma (KG)',
+  L: 'Litro (L)',
+  M: 'Metro (M)',
+  HR: 'Hora trabalhada (HR)',
 }
 
 onMounted(() => {
