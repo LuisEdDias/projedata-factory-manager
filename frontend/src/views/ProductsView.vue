@@ -57,7 +57,7 @@
                     <th>Código</th>
                     <th>Nome do Produto</th>
                     <th class="text-end">Preço de Venda</th>
-                    <th class="text-center">Qtd. Insumos na Receita</th>
+                    <th class="text-center">Lucro Liquido</th>
                     <th class="text-center">Ações</th>
                   </tr>
                 </thead>
@@ -70,16 +70,19 @@
                   <tr v-for="product in products" :key="product.code">
                     <td class="align-middle fw-bold">{{ product.code }}</td>
                     <td class="align-middle">{{ product.name }}</td>
-                    <td class="align-middle text-end text-success fw-bold">
+                    <td class="align-middle text-end fw-bold">
                       $
                       {{
                         Number(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
                       }}
                     </td>
-                    <td class="align-middle text-center">
-                      <span class="badge bg-info text-dark rounded-pill">
-                        {{ product.materials.length }} itens
-                      </span>
+                    <td class="align-middle text-center text-success fw-bold">
+                      {{
+                        Number(product.unitProfit).toLocaleString('pt-BR', {
+                          minimumFractionDigits: 2,
+                        })
+                      }}
+                      $
                     </td>
                     <td class="align-middle text-center">
                       <div class="d-flex gap-2 flex-wrap justify-content-center">

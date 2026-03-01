@@ -11,6 +11,8 @@ export interface ProductResponse {
   code: string
   name: string
   price: number
+  totalMaterialCost: number
+  unitProfit: number
   materials: ProductMaterialResponse[]
 }
 

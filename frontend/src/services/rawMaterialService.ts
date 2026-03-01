@@ -27,7 +27,7 @@ export default {
     return res.data
   },
 
-  async updateName(code: string, data: UpdateRawMaterialRequest): Promise<RawMaterial> {
+  async update(code: string, data: UpdateRawMaterialRequest): Promise<RawMaterial> {
     const res = await api.put(`${BASE}/${code}`, data)
     return res.data
   },

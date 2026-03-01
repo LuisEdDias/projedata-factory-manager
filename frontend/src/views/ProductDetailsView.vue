@@ -37,16 +37,33 @@
                 <div class="text-muted small">Nome</div>
                 <div class="fw-bold">{{ product.name }}</div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-2">
                 <div class="text-muted small">Preço</div>
-                <div class="fw-bold text-success">
+                <div class="fw-bold">
                   R$
                   {{ Number(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
                 </div>
               </div>
-              <div class="col-md-3">
-                <div class="text-muted small">Materiais Necessários</div>
-                <div class="fw-bold">{{ product.materials.length }}</div>
+              <div class="col-md-2">
+                <div class="text-muted small">Custo</div>
+                <div class="fw-bold text-danger">
+                  R$
+                  {{
+                    Number(product.totalMaterialCost).toLocaleString('pt-BR', {
+                      minimumFractionDigits: 2,
+                    })
+                  }}
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="text-muted small">Lucro Liquido</div>
+                <div class="fw-bold text-success">
+                  R$
+                  {{
+                    Number(product.unitProfit).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                  }}
+                  ({{ margin() }})
+                </div>
               </div>
             </div>
           </div>
@@ -416,6 +433,19 @@ const setSuccess = (msg: string) => {
 const setError = (msg: string) => {
   error.value = msg
   setTimeout(() => (error.value = ''), 5000)
+}
+
+const margin = (): string => {
+  if (!product.value) return '0%'
+  const cost = Number(product.value.totalMaterialCost)
+  const price = Number(product.value.price)
+  if (price === 0) return '0%'
+  return (
+    (((price - cost) / price) * 100).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }) + '%'
+  )
 }
 
 onMounted(async () => {

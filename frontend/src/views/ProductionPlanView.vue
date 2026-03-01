@@ -4,14 +4,28 @@
       <div class="col-md-9">
         <h2 class="text-secondary mb-0"><i class="bi bi-cpu"></i> Inteligência de Produção</h2>
         <p class="text-muted small mt-1">
-          Otimização baseada em algoritmo Greedy (Maximização de Valor) para sugerir a melhor ordem
-          de produção baseada valor de venda do produto, considerando composição, estoque atual e
-          gargalos de insumos.
+          Inteligência de produção que utiliza algoritmos de otimização para maximizar a
+          rentabilidade, identificando automaticamente a melhor ordem de fabricação conforme a
+          disponibilidade de insumos e gargalos de estoque.
         </p>
       </div>
-      <button class="btn btn-primary fw-bold px-4" @click="fetchPlan" :disabled="loading">
-        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-        Recalcular Plano
+      <button
+        v-if="activeStrategy === 'PROFIT'"
+        type="button"
+        class="btn btn-primary fw-bold px-4"
+        @click="fetchPlan('REVENUE')"
+        :disabled="loading"
+      >
+        Maximizar Receita Bruta
+      </button>
+      <button
+        v-else
+        type="button"
+        class="btn btn-success fw-bold px-4"
+        @click="fetchPlan('PROFIT')"
+        :disabled="loading"
+      >
+        Maximizar Lucro Líquido
       </button>
     </div>
 
@@ -23,25 +37,40 @@
         style="width: 3rem; height: 3rem"
         role="status"
       ></div>
-      <h5 class="mt-3 text-muted">Analisando receitas e processando gargalos de estoque...</h5>
+      <h5 class="mt-3 text-muted">Analisando receitas e processando estoque...</h5>
     </div>
 
     <div v-if="loaded && !error" class="row g-4">
       <div class="col-12">
-        <div class="card shadow-sm border-success border-2">
-          <div class="card-body text-center py-4">
-            <h5 class="text-muted text-uppercase fw-bold mb-2">Receita Máxima Estimada</h5>
-            <h1 class="display-4 text-success fw-bold mb-0">
-              $
-              {{
-                Number(planData.estimatedTotalRevenue).toLocaleString('pt-BR', {
-                  minimumFractionDigits: 2,
-                })
-              }}
-            </h1>
-            <p class="text-muted small mt-2 mb-0">
-              Caso o plano de produção abaixo seja executado integralmente.
-            </p>
+        <div
+          class="card shadow-sm border-2"
+          :class="activeStrategy === 'REVENUE' ? 'border-primary' : 'border-success'"
+        >
+          <div class="card-body py-4 d-flex justify-content-around text-center">
+            <div>
+              <h6 class="text-muted text-uppercase fw-bold mb-2">Faturamento Bruto</h6>
+              <h2 class="text-primary fw-bold mb-0">
+                $
+                {{
+                  Number(planData.estimatedTotalRevenue || 0).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })
+                }}
+              </h2>
+            </div>
+
+            <div class="border-start"></div>
+            <div>
+              <h6 class="text-muted text-uppercase fw-bold mb-2">Lucro Líquido</h6>
+              <h2 class="text-success fw-bold mb-0">
+                $
+                {{
+                  Number(planData.estimatedTotalProfit || 0).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })
+                }}
+              </h2>
+            </div>
           </div>
         </div>
       </div>
@@ -127,27 +156,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import productionService from '../services/productionService'
 
 const loading = ref(false)
 const error = ref('')
+const activeStrategy = ref<'REVENUE' | 'PROFIT'>('REVENUE')
 
 const planData = ref({
   plan: [] as any[],
   estimatedTotalRevenue: 0,
+  estimatedTotalProfit: 0,
   remainingStock: {} as Record<string, number>,
 })
 
 const loaded = ref(false)
 
-const fetchPlan = async () => {
+const fetchPlan = async (strategy: 'REVENUE' | 'PROFIT') => {
+  activeStrategy.value = strategy
   loading.value = true
   error.value = ''
+
   try {
-    planData.value = await productionService.calculatePlan()
+    if (strategy === 'REVENUE') {
+      planData.value = await productionService.calculateByRevenue()
+    } else {
+      planData.value = await productionService.calculateByProfit()
+    }
   } catch (err: any) {
-    error.value = err.detail || 'Ocorreu um erro ao calcular o plano de otimização.'
+    error.value = err.detail || 'Erro ao calcular o plano de otimização.'
   } finally {
     loading.value = false
     loaded.value = true
@@ -155,7 +192,7 @@ const fetchPlan = async () => {
 }
 
 onMounted(() => {
-  fetchPlan()
+  fetchPlan('REVENUE')
 })
 </script>
 

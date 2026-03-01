@@ -5,8 +5,8 @@
         <span class="badge bg-primary mb-2 px-3 py-2">Projeto Full-Stack Industrial</span>
         <h1 class="display-4 fw-bold text-dark mb-3">Factory Manager</h1>
         <p class="lead text-muted mb-4">
-          Uma solução inteligente para gestão de manufatura que transforma inventário em lucro
-          otimizado através de algoritmos de alta performance.
+          Uma solução inteligente para gestão de manufatura que transforma inventário em receita
+          bruta ou lucro líquido otimizado através de algoritmos de alta performance.
         </p>
         <div class="d-flex gap-3 flex-wrap">
           <RouterLink to="/production-plan" class="btn btn-primary btn-lg fw-bold shadow-sm">
@@ -58,19 +58,24 @@
               <i class="bi bi-diagram-3 me-2 text-primary"></i>O Algoritmo Guloso
             </h4>
             <p class="text-secondary">
-              Para maximizar a receita, implementamos um
-              <strong>Greedy Algorithm (Algoritmo Guloso)</strong>. Diferente de uma busca
-              exaustiva, ele toma decisões rápidas e eficientes:
+              <strong>Greedy Algorithm</strong> flexível, tomando decisões rápidas e eficientes
+              baseadas na meta do negócio:
             </p>
 
             <ol class="small text-secondary">
-              <li>Ordena os produtos pelo <strong>maior valor unitário</strong>.</li>
+              <li>
+                Permite alternar dinamicamente a meta: <strong>Maximizar Receita</strong> ou
+                <strong>Maximizar Lucro Líquido</strong>.
+              </li>
+              <li>
+                Ordena os produtos em memória com complexidade <strong>O(n log n)</strong> de acordo
+                com a meta escolhida.
+              </li>
               <li>
                 Identifica o <strong>gargalo</strong> de cada receita comparando com o estoque
                 atual.
               </li>
               <li>Consome o estoque virtualmente e avança para o próximo item mais rentável.</li>
-              <li>Garante complexidade de tempo <strong>O(n log n)</strong> devido à ordenação.</li>
             </ol>
           </div>
         </div>
@@ -83,6 +88,10 @@
               <i class="bi bi-shield-check me-2 text-primary"></i>Regras de Domínio
             </h4>
             <ul class="text-secondary mb-0">
+              <li class="mb-2">
+                <strong>Rich Domain Model:</strong> O cálculo de custo de insumos e margem de lucro
+                líquido pertence à própria entidade <code>Product</code>, garantindo forte coesão.
+              </li>
               <li class="mb-2">
                 <strong>Integridade de Código:</strong> Todos os IDs são sanitizados para maiúsculas
                 e validados via Regex no Backend.
@@ -124,7 +133,7 @@
             <h5 class="fw-bold">Test Coverage</h5>
             <p class="small text-muted">
               As classes de serviço possuem alta cobertura de testes unitários (JUnit 5), garantindo
-              que o sistema seja confiável e robusto.
+              que a lógica financeira do sistema seja infalível.
             </p>
           </div>
         </div>

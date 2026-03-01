@@ -11,6 +11,7 @@ export interface RawMaterial {
   name: string
   stockQuantity: number
   unit: Unit
+  unitCost: number
 }
 
 export interface CreateRawMaterialRequest {
@@ -18,10 +19,12 @@ export interface CreateRawMaterialRequest {
   name: string
   initialStock: number
   unit: Unit
+  unitCost: number
 }
 
 export interface UpdateRawMaterialRequest {
   name: string
+  unitCost: number
 }
 
 export interface StockChangeRequest {

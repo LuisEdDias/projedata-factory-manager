@@ -56,6 +56,7 @@
                     <th>Nome</th>
                     <th class="text-end">Estoque Atual</th>
                     <th>Unidade</th>
+                    <th>Custo/UN</th>
                     <th class="text-center">Ações</th>
                   </tr>
                 </thead>
@@ -74,6 +75,14 @@
                       </span>
                     </td>
                     <td class="align-middle">{{ material.unit }}</td>
+                    <td class="align-middle text-end fw-bold">
+                      R$
+                      {{
+                        Number(material.unitCost).toLocaleString('pt-BR', {
+                          minimumFractionDigits: 2,
+                        })
+                      }}
+                    </td>
                     <td class="align-middle text-center">
                       <div class="d-flex gap-2 flex-wrap justify-content-center">
                         <button
@@ -141,100 +150,109 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Create Modal -->
-        <div class="modal fade" ref="createModalElement" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header bg-light">
-                <h5 class="modal-title fw-bold">Cadastrar Matéria-Prima</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeModal"
-                  aria-label="Close"
-                ></button>
+      <!-- Create Modal -->
+      <div class="modal fade" ref="createModalElement" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-light">
+              <h5 class="modal-title fw-bold">Cadastrar Matéria-Prima</h5>
+              <button
+                type="button"
+                class="btn-close"
+                @click="closeModal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div v-if="formSuccess" class="alert alert-success py-2">
+                {{ formSuccess }}
               </div>
-              <div class="modal-body">
-                <div v-if="formSuccess" class="alert alert-success py-2">
-                  {{ formSuccess }}
+
+              <div v-if="formGeneralError" class="alert alert-danger py-2">
+                {{ formGeneralError }}
+              </div>
+
+              <form @submit.prevent="saveMaterial">
+                <div class="mb-3">
+                  <label class="form-label">Código</label>
+                  <input
+                    v-model="createForm.code"
+                    type="text"
+                    class="form-control text-uppercase"
+                    :class="{ 'is-invalid': hasError('code') }"
+                    placeholder="Ex: COD-01"
+                  />
+                  <div class="invalid-feedback">{{ getError('code') }}</div>
                 </div>
 
-                <div v-if="formGeneralError" class="alert alert-danger py-2">
-                  {{ formGeneralError }}
+                <div class="mb-3">
+                  <label class="form-label">Nome do Insumo</label>
+                  <input
+                    v-model="createForm.name"
+                    type="text"
+                    class="form-control"
+                    :class="{ 'is-invalid': hasError('name') }"
+                    placeholder="Ex: Prego 17x30mm"
+                  />
+                  <div class="invalid-feedback">{{ getError('name') }}</div>
                 </div>
 
-                <form @submit.prevent="saveMaterial">
-                  <div class="mb-3">
-                    <label class="form-label">Código</label>
+                <div class="row mb-3">
+                  <div class="col-6">
+                    <label class="form-label">Estoque Inicial</label>
                     <input
-                      v-model="createForm.code"
-                      type="text"
-                      class="form-control text-uppercase"
-                      :class="{ 'is-invalid': hasError('code') }"
-                      placeholder="Ex: COD-01"
-                    />
-                    <div class="invalid-feedback">{{ getError('code') }}</div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">Nome do Insumo</label>
-                    <input
-                      v-model="createForm.name"
-                      type="text"
+                      v-model="createForm.initialStock"
+                      type="number"
+                      step="0.0001"
                       class="form-control"
-                      :class="{ 'is-invalid': hasError('name') }"
-                      placeholder="Ex: Prego 17x30mm"
+                      :class="{ 'is-invalid': hasError('initialStock') }"
                     />
-                    <div class="invalid-feedback">{{ getError('name') }}</div>
+                    <div class="invalid-feedback">{{ getError('initialStock') }}</div>
                   </div>
-
-                  <div class="row mb-3">
-                    <div class="col-6">
-                      <label class="form-label">Estoque Inicial</label>
-                      <input
-                        v-model="createForm.initialStock"
-                        type="number"
-                        step="0.0001"
-                        class="form-control"
-                        :class="{ 'is-invalid': hasError('initialStock') }"
-                      />
-                      <div class="invalid-feedback">{{ getError('initialStock') }}</div>
-                    </div>
-                    <div class="col-6">
-                      <label class="form-label">Unidade de Medida</label>
-                      <select
-                        v-model="createForm.unit"
-                        class="form-select"
-                        :class="{ 'is-invalid': hasError('unit') }"
-                      >
-                        <option v-for="u in units" :key="u" :value="u">
-                          {{ unitLabels[u] }}
-                        </option>
-                      </select>
-                      <div class="invalid-feedback">{{ getError('unit') }}</div>
-                    </div>
+                  <div class="col-6">
+                    <label class="form-label">Unidade de Medida</label>
+                    <select
+                      v-model="createForm.unit"
+                      class="form-select"
+                      :class="{ 'is-invalid': hasError('unit') }"
+                    >
+                      <option v-for="u in units" :key="u" :value="u">
+                        {{ unitLabels[u] }}
+                      </option>
+                    </select>
+                    <div class="invalid-feedback">{{ getError('unit') }}</div>
                   </div>
-                </form>
-              </div>
-              <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" @click="closeModal">
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  @click="saveMaterial"
-                  :disabled="saving"
-                >
-                  <span
-                    v-if="saving"
-                    class="spinner-border spinner-border-sm me-2"
-                    role="status"
-                  ></span>
-                  Salvar
-                </button>
-              </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Custo Unitário</label>
+                  <input
+                    v-model="createForm.unitCost"
+                    type="number"
+                    step="0.0001"
+                    class="form-control"
+                    :class="{ 'is-invalid': hasError('unitCost') }"
+                  />
+                  <div class="invalid-feedback">{{ getError('unitCost') }}</div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer bg-light">
+              <button type="button" class="btn btn-secondary" @click="closeModal">Cancelar</button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                @click="saveMaterial"
+                :disabled="saving"
+              >
+                <span
+                  v-if="saving"
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                ></span>
+                Salvar
+              </button>
             </div>
           </div>
         </div>
@@ -273,6 +291,17 @@
                   :class="{ 'is-invalid': hasError('name') }"
                 />
                 <div class="invalid-feedback">{{ getError('name') }}</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Custo Unitário</label>
+                <input
+                  v-model="editForm.unitCost"
+                  type="number"
+                  step="0.0001"
+                  class="form-control"
+                  :class="{ 'is-invalid': hasError('unitCost') }"
+                />
+                <div class="invalid-feedback">{{ getError('unitCost') }}</div>
               </div>
             </form>
           </div>
@@ -435,10 +464,11 @@ const createForm = ref<CreateRawMaterialForm>({
   name: '',
   initialStock: 0,
   unit: Unit.UN,
+  unitCost: 0,
 })
 
 const openModal = () => {
-  createForm.value = { code: '', name: '', initialStock: 0, unit: Unit.UN }
+  createForm.value = { code: '', name: '', initialStock: 0, unit: Unit.UN, unitCost: 0 }
   formErrors.value = []
   formGeneralError.value = ''
   bsCreateModal?.show()
@@ -459,7 +489,7 @@ const saveMaterial = async () => {
     if (rawMaterials.value.length < pageSize.value) {
       rawMaterials.value.push(created)
     }
-    createForm.value = { code: '', name: '', initialStock: 0, unit: Unit.UN }
+    createForm.value = { code: '', name: '', initialStock: 0, unit: Unit.UN, unitCost: 0 }
     setFormSuccess('Matéria-prima cadastrada com sucesso!')
   } catch (err: any) {
     if (err.invalid_params) {
@@ -477,10 +507,10 @@ const saveMaterial = async () => {
 // --- Raw Material Edit Modal ---
 const editModalElement = ref<HTMLElement | null>(null)
 let bsEditModal: Modal | null = null
-const editForm = ref<EditRawMaterialForm>({ code: '', name: '' })
+const editForm = ref<EditRawMaterialForm>({ code: '', name: '', unitCost: 0 })
 
 const openEditModal = (material: RawMaterial) => {
-  editForm.value = { code: material.code, name: material.name }
+  editForm.value = { code: material.code, name: material.name, unitCost: material.unitCost }
   formErrors.value = []
   formGeneralError.value = ''
   bsEditModal?.show()
@@ -496,11 +526,15 @@ const updateMaterial = async () => {
   formGeneralError.value = ''
 
   try {
-    await rawMaterialService.updateName(editForm.value.code, { name: editForm.value.name })
+    await rawMaterialService.update(editForm.value.code, {
+      name: editForm.value.name,
+      unitCost: editForm.value.unitCost,
+    })
 
     const index = rawMaterials.value.findIndex((m) => m.code === editForm.value.code)
     if (index !== -1 && rawMaterials.value[index]) {
       rawMaterials.value[index].name = editForm.value.name
+      rawMaterials.value[index].unitCost = editForm.value.unitCost
     }
 
     closeEditModal()
@@ -644,11 +678,13 @@ interface CreateRawMaterialForm {
   name: string
   initialStock: number
   unit: Unit
+  unitCost: number
 }
 
 interface EditRawMaterialForm {
   code: string
   name: string
+  unitCost: number
 }
 
 interface StockForm {
