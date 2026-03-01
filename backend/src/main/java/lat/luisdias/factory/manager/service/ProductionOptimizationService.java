@@ -45,7 +45,19 @@ public class ProductionOptimizationService {
 
     @Transactional(readOnly = true)
     public ProductionPlanResponse getPlanByRevenue() {
-        List<Product> sortedProducts = productRepository.findAllFetchCompositionsSortedByPriceDesc();
+        List<Product> products = productRepository.findAllFetchCompositionsSortedByPriceDesc();
+
+        Comparator<Product> byRevenueThenProfit = Comparator
+                .comparing(Product::getPrice, Comparator.nullsLast(BigDecimal::compareTo)).reversed()
+                .thenComparing(
+                        Product::getUnitProfit,
+                        Comparator.nullsLast(BigDecimal::compareTo).reversed()
+                )
+                .thenComparing(Product::getCode, Comparator.nullsLast(String::compareTo));
+
+        List<Product> sortedProducts = products.stream()
+                .sorted(byRevenueThenProfit)
+                .toList();
 
         return calculateOptimalProductionPlan(sortedProducts);
     }
