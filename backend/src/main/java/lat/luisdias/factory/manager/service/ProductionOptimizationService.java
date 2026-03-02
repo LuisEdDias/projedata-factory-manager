@@ -37,7 +37,12 @@ public class ProductionOptimizationService {
         List<Product> products = productRepository.findAllFetchCompositionsSortedByPriceDesc();
 
         List<Product> sortedProducts = products.stream()
-                .sorted(Comparator.comparing(Product::getUnitProfit).reversed())
+                .sorted(
+                        Comparator
+                                .comparing(Product::getProfitMargin, Comparator.nullsLast(BigDecimal::compareTo))
+                                .reversed()
+                                .thenComparing(Product::getUnitProfit, Comparator.nullsLast(BigDecimal::compareTo).reversed())
+                )
                 .toList();
 
         return calculateOptimalProductionPlan(sortedProducts);

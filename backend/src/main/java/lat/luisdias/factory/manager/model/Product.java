@@ -119,6 +119,16 @@ public class Product {
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
+
+    public BigDecimal getProfitMargin() {
+        if (this.price == null || this.price.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return getUnitProfit()
+                .divide(this.price, 6, RoundingMode.HALF_UP);
+    }
+
     private void validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new DomainInvariantViolationException(
